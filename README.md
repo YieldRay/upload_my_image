@@ -16,16 +16,16 @@ cargo build --release
 
 ```sh
 USAGE:
-    upload_my_image.exe [OPTIONS] [PATH]...
+    upload_my_image[.exe] [OPTIONS] [PATH]...
 
 ARGS:
-    <PATH>...    Path of the file to upload
+    <PATH>...    Path(s) of the file(s) to upload
 
 OPTIONS:
     -c, --config <CONFIG>    Use a config file
     -d, --debug              Turn debugging information on
     -h, --help               Print help information
-    -l, --list               show all avaliable servers
+    -l, --list               Show all avaliable servers
     -s, --server <SERVER>    Select server
     -V, --version            Print version information
 ```

@@ -7,10 +7,13 @@ use utils::send_post;
 
 use crate::servers::Config;
 
+static CARGO_PKG_NAME: &str = env!("CARGO_PKG_NAME");
+static CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
-    /// Path of the file to upload
+    /// Path(s) of the file(s) to upload
     #[clap(min_values = 1, max_values = 99)]
     path: Vec<String>,
 
@@ -18,7 +21,7 @@ struct Args {
     #[clap(short = 's', long)]
     server: Option<String>,
 
-    /// show all avaliable servers
+    /// Show all avaliable servers
     #[clap(short, long)]
     list: bool,
 
@@ -50,18 +53,25 @@ async fn main() {
 
     // for --list
     if args.list {
-        println!(" Servers avaliable:\n");
+        println!("Servers avaliable:\n");
         for s in servers {
             println!(" {}", s.name);
         }
+        println!("\n");
+        println!("Add flag `--server <name>` to specify the server");
+        println!("Example: {} path/to/img.png --server smms", CARGO_PKG_NAME);
         exit(0);
     }
 
     // check if input files is set
     if args.path.len() == 0 {
         // eprintln!(" \x1b[1;40mUpload Fail\x1b[0m");
+        eprintln!("{} {}", CARGO_PKG_NAME, CARGO_PKG_VERSION);
+        eprintln!("");
         eprintln!("Please enter one or more paths for uploading!");
-        eprintln!("  Use flag `--help` for help");
+        eprintln!("Example: `{} path/to/img.jpg`", CARGO_PKG_NAME);
+        eprintln!("");
+        eprintln!("Use command `{} --help` for help", CARGO_PKG_NAME);
         exit(1);
     }
 

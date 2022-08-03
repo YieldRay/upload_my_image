@@ -2,7 +2,7 @@
 name = "upload_my_image"
 version = "0.1.0"
 edition = "2021"
-authors = ["YieldRay"]
+authors = ["YieldRay <yieldray@outlook.com>"]
 description = "upload my image(s) to remote server"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
