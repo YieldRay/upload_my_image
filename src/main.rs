@@ -2,10 +2,8 @@ use clap::Parser;
 use std::{fs, process::exit};
 mod servers;
 mod utils;
-use servers::{use_build_in_config, use_file_config};
-use utils::send_post;
-
-use crate::servers::Config;
+use crate::servers::{use_build_in_config, use_file_config, Config};
+use crate::utils::send_post;
 
 static CARGO_PKG_NAME: &str = env!("CARGO_PKG_NAME");
 static CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -44,11 +42,11 @@ async fn main() {
     if let Some(config_path) = args.config {
         servers = use_file_config(config_path); // load the config file
     } else {
-        servers = use_build_in_config(); // use build-in
+        servers = use_build_in_config(); // use build-in config
     }
 
     if let Some(s) = args.server {
-        server_name = s;
+        server_name = s; // load server selected by user, check is needed
     }
 
     // for --list
@@ -75,12 +73,18 @@ async fn main() {
         exit(1);
     }
 
-    // check if the server is set in config file
+    // check if the server is avaliable at config file
     let mut config: Option<Config> = None;
     for s in servers {
         if s.name == server_name {
             config = Some(s);
         }
+    }
+
+    if config.is_none() {
+        eprintln!("Server `{}` does not exist!", server_name);
+        eprintln!("Use command `{} --list` to see avaliable servers", CARGO_PKG_NAME);
+        exit(1);
     }
     let config = config.unwrap();
 

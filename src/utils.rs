@@ -1,45 +1,55 @@
 use crate::servers::Config;
-use std::fs;
-use std::path::Path;
+use reqwest::header::{HeaderMap, HeaderName};
+use reqwest::multipart::{Form, Part};
+use std::{fs, path::Path};
 
-fn build_part(path: String) -> reqwest::multipart::Part {
+fn build_part(path: String) -> Part {
     let filename = Path::new(&path)
         .file_name()
         .unwrap()
         .to_str()
         .unwrap()
         .to_owned();
-    reqwest::multipart::Part::bytes(fs::read(path).unwrap()).file_name(filename)
+    Part::bytes(fs::read(path).unwrap()).file_name(filename)
 }
 
 pub async fn send_post(config: &Config, local_path: String, debug: bool) -> Result<String, String> {
     let client = reqwest::Client::new();
-    let mut form = reqwest::multipart::Form::new();
-    let mut headers = reqwest::header::HeaderMap::new();
+    let mut form = Form::new();
+    let mut headers = HeaderMap::new();
     for (k, v) in config.form.iter() {
         form = form.text(k.clone(), v.clone());
     }
-    form = form.part(config.form_file.clone(), build_part(local_path));
+    form = form.part(config.form_file.clone(), build_part(local_path.clone()));
     for (k, v) in config.headers.iter() {
         headers.insert(
-            reqwest::header::HeaderName::from_bytes(k.as_bytes()).unwrap(),
+            HeaderName::from_bytes(k.as_bytes()).unwrap(),
             v.as_str().parse().unwrap(),
         );
     }
 
-    let res = client
+    let res; // send HTTP request
+    match client
         .post(config.url.clone())
         .headers(headers)
         .multipart(form)
         .send()
         .await
-        .unwrap();
+    {
+        Ok(r) => res = r,
+        Err(err) => return Err(err.to_string()),
+    }
 
     if debug {
+        println!("Debug for uploading `{}` \n", local_path);
         println!("{:#?}\n", res);
     }
 
-    let json = res.text().await.unwrap();
+    let json; // json text, need parse
+    match res.text().await {
+        Ok(txt) => json = txt,
+        Err(err) => return Err(err.to_string()),
+    }
 
     if debug {
         println!("{:#?}\n", json);

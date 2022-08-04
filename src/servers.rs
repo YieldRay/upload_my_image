@@ -1,6 +1,4 @@
-// read a config file to load avaliable servers
-#![allow(unused)]
-use json::{array, object};
+use json::{array, JsonValue};
 use std::{collections::HashMap, fs, process::exit};
 
 #[derive(Debug)]
@@ -14,7 +12,7 @@ pub struct Config {
     pub message: Vec<String>,
 }
 
-fn parse_config(parsed: json::JsonValue) -> Vec<Config> {
+fn parse_config(parsed: JsonValue) -> Vec<Config> {
     let mut servers = Vec::new();
     for item in parsed.members().into_iter() {
         let name: String;
@@ -175,7 +173,7 @@ pub fn use_build_in_config() -> Vec<Config> {
             },
             "form": {},
             "form_file": "uploaded_file[]",
-            "response": ["success_image", "0", "url"],
+            "response": ["success_image", 0, "url"],
             "message": ["code"]
         }
     ];
