@@ -1,6 +1,6 @@
 [package]
 name = "upload_my_image"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["YieldRay <yieldray@outlook.com>"]
 description = "upload my image(s) to remote server"

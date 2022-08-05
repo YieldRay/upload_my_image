@@ -39,10 +39,15 @@ async fn main() {
     let mut server_name = String::from("smms"); // default to-upload server name
     let servers: Vec<Config>; // servers from config
 
-    if let Some(config_path) = args.config {
-        servers = use_file_config(config_path); // load the config file
+    // load all servers (--config to set other config file)
+    if let Some(config_path) = args.config.clone() {
+        // load the config file
+        servers = use_file_config(config_path);
+        // if this func got error, the program will stop and show user-friendly error
+        // so do not need to handle any error here
     } else {
-        servers = use_build_in_config(); // use build-in config
+        // use build-in config
+        servers = use_build_in_config();
     }
 
     if let Some(s) = args.server {
@@ -58,14 +63,21 @@ async fn main() {
         println!("\n");
         println!("Add flag `--server <name>` to specify the server");
         println!("Example: {} path/to/img.png --server smms", CARGO_PKG_NAME);
+
+        if args.config.is_none() {
+            println!("\nIf you need to check your config file, viewing what are loaded from it");
+            println!(
+                "Use command: {} --config ./config.json --list",
+                CARGO_PKG_NAME
+            );
+        }
         exit(0);
     }
 
-    // check if input files is set
+    // check whether files to upload is specified
     if args.path.len() == 0 {
         // eprintln!(" \x1b[1;40mUpload Fail\x1b[0m");
-        eprintln!("{} {}", CARGO_PKG_NAME, CARGO_PKG_VERSION);
-        eprintln!("");
+        eprintln!("{} {}\n", CARGO_PKG_NAME, CARGO_PKG_VERSION);
         eprintln!("Please enter one or more paths for uploading!");
         eprintln!("Example: `{} path/to/img.jpg`", CARGO_PKG_NAME);
         eprintln!("");
@@ -83,7 +95,10 @@ async fn main() {
 
     if config.is_none() {
         eprintln!("Server `{}` does not exist!", server_name);
-        eprintln!("Use command `{} --list` to see avaliable servers", CARGO_PKG_NAME);
+        eprintln!(
+            "Use command `{} --list` to see avaliable servers",
+            CARGO_PKG_NAME
+        );
         exit(1);
     }
     let config = config.unwrap();
