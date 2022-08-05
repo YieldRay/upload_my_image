@@ -26,32 +26,33 @@ fn parse_config(parsed: JsonValue) -> Vec<Config> {
         if let Some(s) = item["name"].as_str() {
             name = s.to_string();
         } else {
-            break;
+            break; // must set
         }
         if let Some(u) = item["url"].as_str() {
             url = u.to_string();
         } else {
-            break;
+            break; // must set
         }
         for (k, v) in item["headers"].entries().into_iter() {
             if let Some(val) = v.as_str() {
                 headers.insert(k.to_string(), val.to_string());
             } else {
-                break;
+                break; // optional, break only if got wrong value
             }
         }
         for (k, v) in item["form"].entries().into_iter() {
             if let Some(val) = v.as_str() {
                 form.insert(k.to_string(), val.to_string());
             } else {
-                break;
+                break; // optional, break only if got wrong valueF
             }
         }
         if let Some(u) = item["form_file"].as_str() {
             form_file = u.to_string();
         } else {
-            form_file = String::from("");
+            break; // must set
         }
+        // options below are optional
         for val in item["response"].members().into_iter() {
             if let Some(s) = val.as_str() {
                 response.push(s.to_string());
@@ -97,7 +98,14 @@ pub fn use_file_config(path: String) -> Vec<Config> {
             exit(1);
         }
     };
-    parse_config(parsed)
+
+    let conf_vec = parse_config(parsed);
+    if conf_vec.len() == 0 {
+        eprintln!("Load zero server from config file");
+        eprintln!("Please set at least one correct server at your config file");
+        exit(1);
+    }
+    conf_vec
 }
 
 pub fn use_build_in_config() -> Vec<Config> {
